@@ -6,7 +6,7 @@
 #
 
 # Personal repositories
-https://github.com/PatAltimore/machine-setup.git
+https://github.com/PatAltimore/win-machine-setup.git
 
 # Work repositories (forks with upstream)
 https://github.com/MyGitHubUser/work-repo.git|https://github.com/MyOrg/work-repo.git
