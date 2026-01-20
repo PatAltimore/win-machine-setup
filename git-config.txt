@@ -1,0 +1,13 @@
+# Git Configuration
+# Format: key = value
+# Lines starting with # are comments and ignored
+
+# User Configuration
+user.name = MyFirst MyLast
+user.email = my-noreply-address@users.noreply.github.com
+
+# Common Configuration
+init.defaultBranch = main
+core.longpaths = true
+core.autocrlf = true
+core.editor = code --wait

@@ -1,0 +1,14 @@
+# User-specific files
+# *.txt
+
+
+# PowerShell and system files
+*.log
+*.tmp
+~*
+
+# Windows thumbnail cache
+Thumbs.db
+
+# Folder config file
+Desktop.ini

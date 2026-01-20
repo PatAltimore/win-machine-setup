@@ -1,0 +1,14 @@
+# Repository clone list
+# 
+# Format: repository_url|upstream_url (upstream_url is optional)
+# Lines starting with # are comments are ignored
+# Use | to separate the main repo from its upstream remote
+#
+
+# Personal repositories
+https://github.com/PatAltimore/machine-setup.git
+
+# Work repositories (forks with upstream)
+https://github.com/MyGitHubUser/work-repo.git|https://github.com/MyOrg/work-repo.git
+
+# Open source projects

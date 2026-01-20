@@ -1,0 +1,22 @@
+# Application Name | Winget ID
+# Format: Application Name | Winget ID
+# Lines starting with # are comments and will be ignored
+
+# System Components
+Windows Subsystem for Linux (WSL) | Microsoft.WSL
+Ubuntu WSL Distribution | Canonical.Ubuntu
+
+# Development Tools
+Git | Git.Git
+Visual Studio Code | Microsoft.VisualStudioCode
+Docker Desktop | Docker.DockerDesktop
+Go Programming Language | GoLang.Go
+Visual Studio Community | Microsoft.VisualStudio.Community
+Azure CLI | Microsoft.AzureCLI
+.NET 8.0 SDK | Microsoft.DotNet.SDK.8
+
+# Utilities
+Microsoft Mouse and Keyboard Center | Microsoft.MouseandKeyboardCenter
+
+# Optional Applications
+Windows App | Microsoft.WindowsApp
