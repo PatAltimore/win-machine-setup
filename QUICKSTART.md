@@ -71,11 +71,3 @@ The script will:
    go version
    az --version
    ```
-
-## Troubleshooting
-
-### "Cannot be loaded because running scripts is disabled"
-Run this command in PowerShell (Admin):
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
