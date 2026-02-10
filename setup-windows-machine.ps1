@@ -22,7 +22,10 @@ param(
     [switch]$SkipRepoClone,
     
     [Parameter(HelpMessage = "Git repository workspace directory")]
-    [string]$GitWorkspaceDirectory = "$env:USERPROFILE\git"
+    [string]$GitWorkspaceDirectory = "$env:USERPROFILE\git",
+    
+    [Parameter(HelpMessage = "Path to winget export JSON file (alternative to winget.txt)")]
+    [string]$WingetJsonFile
 )
 
 # Error handling
@@ -78,31 +81,68 @@ if (-not $SkipInstall) {
     Write-Host "Starting application installations..." -ForegroundColor Cyan
     Write-Host ""
 
-    # Read application list from winget.txt
-    $wingetFile = Join-Path $PSScriptRoot "winget.txt"
-    if (Test-Path $wingetFile) {
-        try {
-            $appLines = Get-Content $wingetFile | Where-Object {
-                $_.Trim() -and $_.Trim() -notmatch '^#'
-            } | ForEach-Object { $_.Trim() }
+    # Check if using winget export JSON file
+    if ($WingetJsonFile) {
+        $jsonPath = if ([System.IO.Path]::IsPathRooted($WingetJsonFile)) {
+            $WingetJsonFile
+        } else {
+            Join-Path $PSScriptRoot $WingetJsonFile
+        }
 
-            foreach ($line in $appLines) {
-                $parts = $line -split '\|', 2
-                $appName = $parts[0].Trim()
-                $wingetId = if ($parts.Length -gt 1) { $parts[1].Trim() } else { $null }
-
-                if ($appName -and $wingetId) {
-                    Install-Application -Name $appName -WingetId $wingetId
+        if (Test-Path $jsonPath) {
+            Write-Host "Using winget import with JSON file: $jsonPath" -ForegroundColor Cyan
+            try {
+                Write-Host "Importing packages from JSON file..." -ForegroundColor Yellow
+                $output = winget import --import-file "$jsonPath" --accept-package-agreements --accept-source-agreements 2>&1
+                
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "[SUCCESS] Packages imported successfully" -ForegroundColor Green
                 } else {
-                    Write-Host "[WARNING] Invalid entry in winget.txt: $line" -ForegroundColor Yellow
+                    Write-Host "[WARNING] Import completed with warnings (Exit code: $LASTEXITCODE)" -ForegroundColor Yellow
+                    if ($output) {
+                        Write-Host "Details: $output" -ForegroundColor Gray
+                    }
+                }
+            } catch {
+                Write-Host "[ERROR] Failed to import from JSON file: $_" -ForegroundColor Red
+                if ($_.Exception.Message -like "*winget*not*found*") {
+                    Write-Host "  Winget is not available. Please install Windows App Installer from Microsoft Store." -ForegroundColor Red
                 }
             }
-        } catch {
-            Write-Host "[ERROR] Failed to read winget.txt: $_" -ForegroundColor Red
+            Write-Host ""
+        } else {
+            Write-Host "[ERROR] JSON file not found: $jsonPath" -ForegroundColor Red
+            Write-Host ""
         }
     } else {
-        Write-Host "[WARNING] winget.txt file not found in script directory" -ForegroundColor Yellow
-        Write-Host "  Expected location: $wingetFile" -ForegroundColor Gray
+        # Read application list from winget.txt
+        $wingetFile = Join-Path $PSScriptRoot "winget.txt"
+        if (Test-Path $wingetFile) {
+            Write-Host "Using winget.txt file: $wingetFile" -ForegroundColor Cyan
+            try {
+                $appLines = Get-Content $wingetFile | Where-Object {
+                    $_.Trim() -and $_.Trim() -notmatch '^#'
+                } | ForEach-Object { $_.Trim() }
+
+                foreach ($line in $appLines) {
+                    $parts = $line -split '\|', 2
+                    $appName = $parts[0].Trim()
+                    $wingetId = if ($parts.Length -gt 1) { $parts[1].Trim() } else { $null }
+
+                    if ($appName -and $wingetId) {
+                        Install-Application -Name $appName -WingetId $wingetId
+                    } else {
+                        Write-Host "[WARNING] Invalid entry in winget.txt: $line" -ForegroundColor Yellow
+                    }
+                }
+            } catch {
+                Write-Host "[ERROR] Failed to read winget.txt: $_" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "[WARNING] winget.txt file not found in script directory" -ForegroundColor Yellow
+            Write-Host "  Expected location: $wingetFile" -ForegroundColor Gray
+        }
+        Write-Host ""
     }
 
     Write-Host "Application installations completed!" -ForegroundColor Green

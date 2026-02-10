@@ -4,6 +4,7 @@ Automated Windows machine setup script for fresh installations. This script uses
 
 ## Features
 
+- **Pre-installation Check**: Check for uncommitted Git changes and export installed applications before migration
 - **Automated Installation**: Installs multiple applications with a single command
 - **Git Configuration**: Sets up Git with your user information and sensible defaults
 - **Repository Cloning**: Automatically clones all repositories from `repositories.txt` including upstream remotes
@@ -20,6 +21,10 @@ Automated Windows machine setup script for fresh installations. This script uses
 
 ### Application Installation
 
+You can provide applications to install in two ways:
+
+#### Option 1: Using winget.txt (Default)
+
 Edit the `winget.txt` file to customize the applications installed by the script. Each line should contain the application name and its winget ID, separated by a `|`.
 
 Example format:
@@ -28,6 +33,20 @@ Example format:
 Git | Git.Git
 Visual Studio Code | Microsoft.VisualStudioCode
 ```
+
+#### Option 2: Using a Winget Export JSON File
+
+Export your current winget packages and use the JSON file directly:
+
+```powershell
+# Export your current packages
+winget export -o exported-packages.json
+
+# Use the exported file with the script
+.\setup-windows-machine.ps1 -WingetJsonFile "exported-packages.json"
+```
+
+This method is useful for replicating an existing machine's configuration.
 
 ### Git Configuration
 
@@ -51,6 +70,33 @@ https://github.com/yourusername/yourrepo.git|https://github.com/originalowner/or
 ```
 
 ## Usage
+
+### Pre-installation (Before Migration)
+
+Before reinstalling Windows or migrating to a new machine, run the pre-installation script to check for uncommitted changes and export your installed applications:
+
+```powershell
+.\preinstall.ps1
+```
+
+This will:
+1. Scan all Git repositories in `%USERPROFILE%\git` for uncommitted changes
+2. Export your installed applications to `winget-export.json`
+
+You can customize the behavior with parameters:
+
+```powershell
+# Use a custom Git directory
+.\preinstall.ps1 -GitWorkspaceDirectory "D:\Projects"
+
+# Specify a custom export path
+.\preinstall.ps1 -WingetExportPath "C:\backup\my-apps.json"
+
+# Skip Git repository check (only export installed applications)
+.\preinstall.ps1 -SkipGitCheck
+```
+
+### Installation (Fresh Setup)
 
 1. Open PowerShell as Administrator
 2. Navigate to the script directory
@@ -83,14 +129,27 @@ Skip specific sections using parameters:
 .\setup-windows-machine.ps1 -SkipGitConfig -SkipRepoClone
 ```
 
+Use a winget export JSON file instead of winget.txt:
+
+```powershell
+# Use a winget export JSON file
+.\setup-windows-machine.ps1 -WingetJsonFile "exported-packages.json"
+
+# Use with absolute path
+.\setup-windows-machine.ps1 -WingetJsonFile "C:\path\to\exported-packages.json"
+```
+
 Customize the workspace directory for cloned repositories:
 
 ```powershell
 # Use a custom workspace directory (default is %USERPROFILE%\git)
-.\setup-windows-machine.ps1 -GitWorkspaceDirectory "D:\Projects"
+.\setup-windows-machine.ps1 -GitWorkspaceDirectory "C:\Dev"
 
 # Combine with other parameters
 .\setup-windows-machine.ps1 -GitWorkspaceDirectory "C:\Dev" -SkipInstall
+
+# Combine JSON import with custom workspace
+.\setup-windows-machine.ps1 -WingetJsonFile "exported-packages.json" -GitWorkspaceDirectory "C:\git"
 ```
 
 ## Troubleshooting
